@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Focused Tasks",
+  "version": "1.0.0",
+  "description": "Personal task manager grouped by project. Capture fast, stay organized.",
+  "permissions": ["storage", "sidePanel", "commands"],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Focused Tasks",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "quick-capture": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Space",
+        "mac": "Command+Shift+Space"
+      },
+      "description": "Quick capture a task"
+    }
+  }
+}

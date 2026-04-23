@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quick Capture</title>
+  <link rel="stylesheet" href="quick-capture.css" />
+</head>
+<body>
+  <div class="qc-wrap">
+    <div class="qc-header">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+        <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#7C3AED" opacity=".4"/>
+        <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#7C3AED" opacity=".4"/>
+        <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#7C3AED" opacity=".2"/>
+      </svg>
+      <span class="qc-label">Quick capture</span>
+      <kbd class="qc-hint">Esc to cancel</kbd>
+    </div>
+
+    <input
+      class="qc-input"
+      id="taskInput"
+      type="text"
+      placeholder="What needs doing?"
+      maxlength="120"
+      autofocus
+    />
+
+    <div class="qc-footer">
+      <div class="project-select-wrap">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <rect x="1" y="1" width="4.5" height="4.5" rx="1" fill="currentColor" opacity=".6"/>
+          <rect x="6.5" y="1" width="4.5" height="4.5" rx="1" fill="currentColor" opacity=".3"/>
+          <rect x="1" y="6.5" width="4.5" height="4.5" rx="1" fill="currentColor" opacity=".3"/>
+          <rect x="6.5" y="6.5" width="4.5" height="4.5" rx="1" fill="currentColor" opacity=".15"/>
+        </svg>
+        <select class="project-select" id="projectSelect">
+          <option value="">No project</option>
+        </select>
+      </div>
+      <button class="btn-capture" id="btnCapture">Add task</button>
+    </div>
+  </div>
+
+  <script src="quick-capture.js"></script>
+</body>
+</html>
