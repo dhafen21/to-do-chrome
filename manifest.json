@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Focused Tasks",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3WdD2+/n9+JKizNEuDS/7hJXUN3Kl1Ehngcm9ZAEYms3+Jf0QIU01vPFMTLv9RX+JoFO0ALbjRLjgr5GMWiCMTSr5YmT7cFWr468lP3e2vNQBF6p1HDwIgAf9NanJdOHdnaLOSmZi2Tj6Uh6VHO6i91FvihhuLpb4prOAMN/fRfE5dQAm8toTcLUbD92qdWtpNG2XW9nNthxNY2vxsNh8kHbe+3NaycWbr53qEEbkyMRATuUvnjLAsqptIYGFZnlSqyoKgCzQ7f0IgFF4A70DmQaAKmuXknc4vzstjJSn9nBFYaezSlbsOsCrI4GON97K7M9i+VHVIEqHqJkgWiHPQIDAQAB",
   "version": "1.0.0",
   "description": "Personal task manager grouped by project. Capture fast, stay organized.",
   "permissions": ["storage", "sidePanel", "commands"],

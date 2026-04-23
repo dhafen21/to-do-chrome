@@ -488,6 +488,49 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+// ─── Export / Import ──────────────────────────────────────────────────────────
+
+function exportData() {
+  const payload = JSON.stringify({ projects: state.projects, tasks: state.tasks }, null, 2);
+  const blob    = new Blob([payload], { type: 'application/json' });
+  const url     = URL.createObjectURL(blob);
+  const a       = document.createElement('a');
+  const date    = new Date().toISOString().split('T')[0];
+  a.href        = url;
+  a.download    = `focused-tasks-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function importData(file) {
+  const text = await file.text();
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    alert('Invalid file — could not parse JSON.');
+    return;
+  }
+
+  const incoming = {
+    projects: parsed.projects || [],
+    tasks:    parsed.tasks    || [],
+  };
+
+  // Merge by ID — incoming wins on conflict (it's the newer machine's data)
+  const projectMap = new Map(state.projects.map(p => [p.id, p]));
+  incoming.projects.forEach(p => projectMap.set(p.id, p));
+
+  const taskMap = new Map(state.tasks.map(t => [t.id, t]));
+  incoming.tasks.forEach(t => taskMap.set(t.id, t));
+
+  state.projects = [...projectMap.values()].sort((a, b) => a.order - b.order);
+  state.tasks    = [...taskMap.values()].sort((a, b) => a.order - b.order);
+
+  await save();
+  renderAll();
+}
+
 // ─── Listen for cross-window storage changes (quick capture) ──────────────────
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -538,6 +581,18 @@ document.getElementById('projectNameInput').addEventListener('keydown', async e 
 
 document.getElementById('projectModal').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeProjectModal();
+});
+
+document.getElementById('btnExport').addEventListener('click', exportData);
+
+document.getElementById('btnImport').addEventListener('click', () => {
+  document.getElementById('importFileInput').click();
+});
+
+document.getElementById('importFileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) importData(file);
+  e.target.value = '';
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
