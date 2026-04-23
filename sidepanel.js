@@ -90,7 +90,9 @@ function renderTaskPane() {
   document.getElementById('projectDotLg').style.background = project.color;
   document.getElementById('projectTitle').textContent = project.name;
 
-  const openTasks = state.tasks.filter(t => t.projectId === state.selectedProjectId && t.status === 'open');
+  const openTasks = state.tasks
+    .filter(t => t.projectId === state.selectedProjectId && t.status === 'open')
+    .sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 3) - (PRIORITY_ORDER[b.priority] ?? 3));
   const doneTasks = state.tasks.filter(t => t.projectId === state.selectedProjectId && t.status === 'done');
 
   const total = openTasks.length + doneTasks.length;
@@ -145,7 +147,7 @@ function buildTaskEl(task) {
   item.dataset.id = task.id;
   item.draggable = task.status === 'open';
 
-  const dueHtml = buildDueHtml(task.dueDate);
+  const priorityHtml = buildPriorityHtml(task.priority);
   const notesHtml = task.notes
     ? `<span class="task-notes-preview">${escHtml(task.notes.slice(0, 50))}${task.notes.length > 50 ? '…' : ''}</span>`
     : '';
@@ -165,7 +167,7 @@ function buildTaskEl(task) {
       <div class="task-checkbox" data-action="toggle" title="Complete"></div>
       <div class="task-body">
         <div class="task-title">${escHtml(task.title)}</div>
-        ${dueHtml || notesHtml ? `<div class="task-meta">${dueHtml}${notesHtml}</div>` : ''}
+        ${priorityHtml || notesHtml ? `<div class="task-meta">${priorityHtml}${notesHtml}</div>` : ''}
       </div>
       <div class="task-actions">
         <button class="task-action-btn" data-action="edit" title="Edit">
@@ -209,25 +211,25 @@ function buildTaskEl(task) {
   return item;
 }
 
-function buildDueHtml(dueDate) {
-  if (!dueDate) return '';
-  const today = new Date().toISOString().split('T')[0];
-  const due   = dueDate;
-  const cls   = due < today ? 'overdue' : due === today ? 'today' : '';
-  const label = due === today ? 'Today' : formatDate(due);
-  return `<span class="task-due ${cls}">
-    <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-      <rect x="1" y="1.5" width="9" height="8.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
-      <path d="M1 4.5h9" stroke="currentColor" stroke-width="1.2"/>
-      <path d="M3.5 1v1.5M7.5 1v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-    </svg>
-    ${label}
-  </span>`;
+const PRIORITY_ORDER = { high: 0, medium: 1, low: 2, null: 3, undefined: 3 };
+
+function buildPriorityHtml(priority) {
+  if (!priority || priority === 'low') return '';
+  const label = priority.charAt(0).toUpperCase() + priority.slice(1);
+  return `<span class="task-priority ${priority}">${label}</span>`;
 }
 
-function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+// ─── Priority picker helper ───────────────────────────────────────────────────
+
+function initPriorityPicker(editor, selected = 'low') {
+  const btns = editor.querySelectorAll('.priority-btn');
+  btns.forEach(btn => {
+    if (btn.dataset.priority === selected) btn.classList.add('selected');
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
 }
 
 // ─── Inline editor ────────────────────────────────────────────────────────────
@@ -245,7 +247,7 @@ function openInlineEditor(taskId) {
 
   editor.querySelector('.task-editor-input').value = task.title;
   editor.querySelector('.task-editor-notes').value = task.notes || '';
-  editor.querySelector('.due-input').value = task.dueDate || '';
+  initPriorityPicker(editor, task.priority || 'low');
 
   editor.querySelector('.editor-cancel').addEventListener('click', closeInlineEditors);
   editor.querySelector('.editor-save').addEventListener('click', () => saveInlineEditor(taskId, editor));
@@ -266,6 +268,7 @@ function openNewTaskEditor() {
   const tpl    = document.getElementById('taskEditorTemplate');
   const editor = tpl.content.cloneNode(true).querySelector('.task-editor');
   editor.dataset.editingId = 'new';
+  initPriorityPicker(editor, 'low');
 
   editor.querySelector('.editor-cancel').addEventListener('click', closeInlineEditors);
   editor.querySelector('.editor-save').addEventListener('click', () => saveNewTask(editor));
@@ -292,9 +295,9 @@ async function saveInlineEditor(taskId, editor) {
   const task = state.tasks.find(t => t.id === taskId);
   if (!task) return;
 
-  task.title   = title;
-  task.notes   = editor.querySelector('.task-editor-notes').value.trim();
-  task.dueDate = editor.querySelector('.due-input').value || null;
+  task.title    = title;
+  task.notes    = editor.querySelector('.task-editor-notes').value.trim();
+  task.priority = editor.querySelector('.priority-btn.selected')?.dataset.priority || 'low';
 
   await save();
   renderAll();
@@ -309,7 +312,7 @@ async function saveNewTask(editor) {
     projectId:   state.selectedProjectId,
     title,
     notes:       editor.querySelector('.task-editor-notes').value.trim(),
-    dueDate:     editor.querySelector('.due-input').value || null,
+    priority:    editor.querySelector('.priority-btn.selected')?.dataset.priority || 'low',
     status:      'open',
     order:       state.tasks.filter(t => t.projectId === state.selectedProjectId).length,
     createdAt:   Date.now(),
@@ -488,49 +491,6 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ─── Export / Import ──────────────────────────────────────────────────────────
-
-function exportData() {
-  const payload = JSON.stringify({ projects: state.projects, tasks: state.tasks }, null, 2);
-  const blob    = new Blob([payload], { type: 'application/json' });
-  const url     = URL.createObjectURL(blob);
-  const a       = document.createElement('a');
-  const date    = new Date().toISOString().split('T')[0];
-  a.href        = url;
-  a.download    = `focused-tasks-${date}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-async function importData(file) {
-  const text = await file.text();
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    alert('Invalid file — could not parse JSON.');
-    return;
-  }
-
-  const incoming = {
-    projects: parsed.projects || [],
-    tasks:    parsed.tasks    || [],
-  };
-
-  // Merge by ID — incoming wins on conflict (it's the newer machine's data)
-  const projectMap = new Map(state.projects.map(p => [p.id, p]));
-  incoming.projects.forEach(p => projectMap.set(p.id, p));
-
-  const taskMap = new Map(state.tasks.map(t => [t.id, t]));
-  incoming.tasks.forEach(t => taskMap.set(t.id, t));
-
-  state.projects = [...projectMap.values()].sort((a, b) => a.order - b.order);
-  state.tasks    = [...taskMap.values()].sort((a, b) => a.order - b.order);
-
-  await save();
-  renderAll();
-}
-
 // ─── Listen for cross-window storage changes (quick capture) ──────────────────
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -583,17 +543,6 @@ document.getElementById('projectModal').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeProjectModal();
 });
 
-document.getElementById('btnExport').addEventListener('click', exportData);
-
-document.getElementById('btnImport').addEventListener('click', () => {
-  document.getElementById('importFileInput').click();
-});
-
-document.getElementById('importFileInput').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (file) importData(file);
-  e.target.value = '';
-});
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 

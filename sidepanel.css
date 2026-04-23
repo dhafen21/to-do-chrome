@@ -174,36 +174,6 @@ body {
   color: var(--accent);
 }
 
-.sync-row {
-  display: flex;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.btn-sync {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 6px 8px;
-  border: 1px solid var(--border);
-  background: white;
-  color: var(--text-2);
-  font-size: 11.5px;
-  font-weight: 500;
-  font-family: var(--font);
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: background var(--transition), color var(--transition), border-color var(--transition);
-}
-
-.btn-sync:hover {
-  background: var(--accent-light);
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
 /* ─── Task pane ──────────────────────────────────────────── */
 .task-pane {
   flex: 1;
@@ -419,16 +389,16 @@ body {
   margin-top: 3px;
 }
 
-.task-due {
-  font-size: 11px;
-  color: var(--text-3);
-  display: flex;
-  align-items: center;
-  gap: 3px;
+.task-priority {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 20px;
+  letter-spacing: .1px;
 }
 
-.task-due.overdue { color: var(--danger); }
-.task-due.today { color: #D97706; }
+.task-priority.high   { background: #FEE2E2; color: #DC2626; }
+.task-priority.medium { background: #FEF3C7; color: #B45309; }
 
 .task-notes-preview {
   font-size: 11px;
@@ -600,22 +570,29 @@ body {
   border-top: 1px solid var(--border-light);
 }
 
-.task-editor-due {
+.priority-picker {
   display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--text-3);
+  gap: 4px;
 }
 
-.due-input {
-  border: none;
-  outline: none;
-  font-size: 11px;
-  font-family: var(--font);
-  color: var(--text-2);
-  cursor: pointer;
+.priority-btn {
+  padding: 4px 10px;
+  border: 1.5px solid var(--border);
   background: transparent;
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: var(--font);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all var(--transition);
 }
+
+.priority-btn:hover { border-color: var(--text-3); }
+
+.priority-btn.selected[data-priority="high"]   { background: #FEE2E2; border-color: #DC2626; color: #DC2626; }
+.priority-btn.selected[data-priority="medium"] { background: #FEF3C7; border-color: #B45309; color: #B45309; }
+.priority-btn.selected[data-priority="low"]    { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
 
 .task-editor-btns { display: flex; gap: 6px; }
 
