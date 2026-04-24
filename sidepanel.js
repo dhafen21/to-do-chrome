@@ -214,7 +214,7 @@ function buildTaskEl(task) {
 const PRIORITY_ORDER = { high: 0, medium: 1, low: 2, null: 3, undefined: 3 };
 
 function buildPriorityHtml(priority) {
-  if (!priority || priority === 'low') return '';
+  if (!priority) return '';
   const label = priority.charAt(0).toUpperCase() + priority.slice(1);
   return `<span class="task-priority ${priority}">${label}</span>`;
 }
