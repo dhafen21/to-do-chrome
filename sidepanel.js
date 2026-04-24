@@ -45,6 +45,39 @@ function openTaskCount(projectId) {
   return state.tasks.filter(t => t.projectId === projectId && t.status === 'open').length;
 }
 
+function priorityCounts(projectId) {
+  const open = state.tasks.filter(t => t.projectId === projectId && t.status === 'open');
+  return {
+    high:   open.filter(t => t.priority === 'high').length,
+    medium: open.filter(t => t.priority === 'medium').length,
+    low:    open.filter(t => t.priority === 'low').length,
+  };
+}
+
+function buildProjectPriRow(counts) {
+  if (!counts.high && !counts.medium && !counts.low) return '';
+
+  const highIcon = `<svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+    <circle cx="4.5" cy="4.5" r="4" fill="#FEE2E2" stroke="#DC2626" stroke-width="1"/>
+    <path d="M4.5 2.5v2.2M4.5 6.2v.6" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/>
+  </svg>`;
+  const medIcon = `<svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+    <path d="M4.5 1.2L8.2 7.8H.8L4.5 1.2z" fill="#FEF3C7" stroke="#B45309" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M4.5 3.8v1.8M4.5 6.4v.5" stroke="#B45309" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>`;
+  const lowIcon = `<svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+    <circle cx="4.5" cy="4.5" r="4" fill="#D1FAE5" stroke="#059669" stroke-width="1"/>
+    <path d="M2.8 4.5l1.3 1.3 2.1-2.1" stroke="#059669" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+
+  const parts = [];
+  if (counts.high)   parts.push(`<span class="ppr high"><span class="ppr-icon pulse">${highIcon}</span>${counts.high}</span>`);
+  if (counts.medium) parts.push(`<span class="ppr medium"><span class="ppr-icon">${medIcon}</span>${counts.medium}</span>`);
+  if (counts.low)    parts.push(`<span class="ppr low"><span class="ppr-icon">${lowIcon}</span>${counts.low}</span>`);
+
+  return `<div class="project-pri-row">${parts.join('')}</div>`;
+}
+
 // ─── Render: sidebar ──────────────────────────────────────────────────────────
 
 function renderProjects() {
@@ -56,11 +89,15 @@ function renderProjects() {
     item.className = 'project-item' + (p.id === state.selectedProjectId ? ' active' : '');
     item.dataset.id = p.id;
 
-    const count = openTaskCount(p.id);
+    const count  = openTaskCount(p.id);
+    const priRow = buildProjectPriRow(priorityCounts(p.id));
 
     item.innerHTML = `
       <span class="project-dot" style="background:${p.color}"></span>
-      <span class="project-name">${escHtml(p.name)}</span>
+      <div class="project-info">
+        <span class="project-name">${escHtml(p.name)}</span>
+        ${priRow}
+      </div>
       ${count > 0 ? `<span class="project-badge">${count}</span>` : ''}
     `;
 

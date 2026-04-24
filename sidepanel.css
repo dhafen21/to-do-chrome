@@ -92,7 +92,7 @@ body {
 
 .project-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 9px;
   padding: 7px 10px;
   border-radius: var(--radius-sm);
@@ -121,14 +121,52 @@ body {
   height: 9px;
   border-radius: 50%;
   flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.project-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .project-name {
-  flex: 1;
+  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.project-pri-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.ppr {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ppr.high   { color: #DC2626; }
+.ppr.medium { color: #B45309; }
+.ppr.low    { color: #059669; }
+
+.ppr-icon {
+  display: flex;
+  align-items: center;
+}
+
+@keyframes priPulse {
+  0%, 100% { opacity: 1;  transform: scale(1); }
+  50%       { opacity: .5; transform: scale(.8); }
+}
+
+.ppr-icon.pulse { animation: priPulse 2s ease-in-out infinite; }
 
 .project-badge {
   font-size: 10px;
@@ -140,6 +178,7 @@ body {
   min-width: 18px;
   text-align: center;
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .project-item.active .project-badge {
