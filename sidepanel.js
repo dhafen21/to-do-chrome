@@ -62,8 +62,8 @@ function buildProjectPriRow(counts) {
     <path d="M4.5 2.5v2.2M4.5 6.2v.6" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/>
   </svg>`;
   const medIcon = `<svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-    <path d="M4.5 1.2L8.2 7.8H.8L4.5 1.2z" fill="#FEF3C7" stroke="#B45309" stroke-width="1" stroke-linejoin="round"/>
-    <path d="M4.5 3.8v1.8M4.5 6.4v.5" stroke="#B45309" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="4.5" cy="4.5" r="4" fill="#FEF9C3" stroke="#EAB308" stroke-width="1"/>
+    <path d="M2.5 4.5h4" stroke="#EAB308" stroke-width="1.4" stroke-linecap="round"/>
   </svg>`;
   const lowIcon = `<svg width="9" height="9" viewBox="0 0 9 9" fill="none">
     <circle cx="4.5" cy="4.5" r="4" fill="#D1FAE5" stroke="#059669" stroke-width="1"/>
