@@ -2,8 +2,8 @@
 
 const PROJECT_COLORS = [
   '#7C3AED', '#2563EB', '#059669', '#DC2626',
-  '#D97706', '#DB2777', '#0891B2', '#65A30D',
-  '#9333EA', '#EA580C',
+  '#EAB308', '#D97706', '#DB2777', '#0891B2',
+  '#65A30D', '#9333EA', '#EA580C',
 ];
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -16,6 +16,7 @@ const state = {
   doneCollapsed: false,
   dragSrcId: null,
   selectedColor: PROJECT_COLORS[0],
+  editingProjectId: null,
 };
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
@@ -434,6 +435,16 @@ async function createProject(name, color) {
   renderAll();
 }
 
+async function updateProject(id, name, color) {
+  const project = state.projects.find(p => p.id === id);
+  if (!project) return;
+
+  project.name  = name;
+  project.color = color;
+  await save();
+  renderAll();
+}
+
 async function deleteProject(id) {
   if (!confirm('Delete this project and all its tasks?')) return;
   state.projects = state.projects.filter(p => p.id !== id);
@@ -483,16 +494,37 @@ async function onDrop(e, targetId) {
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
-function openProjectModal() {
-  state.selectedColor = PROJECT_COLORS[0];
-  document.getElementById('projectNameInput').value = '';
+function openProjectModal(projectId = null) {
+  const project = state.projects.find(p => p.id === projectId);
+  state.editingProjectId = project?.id || null;
+  state.selectedColor = project?.color || PROJECT_COLORS[0];
+
+  document.getElementById('projectModalTitle').textContent = project ? 'Rename project' : 'New project';
+  document.getElementById('btnCreateProject').textContent = project ? 'Save' : 'Create';
+  document.getElementById('projectNameInput').value = project?.name || '';
   buildColorPicker();
   document.getElementById('projectModal').style.display = 'flex';
   document.getElementById('projectNameInput').focus();
+  document.getElementById('projectNameInput').select();
 }
 
 function closeProjectModal() {
   document.getElementById('projectModal').style.display = 'none';
+  state.editingProjectId = null;
+}
+
+async function saveProjectModal() {
+  const name = document.getElementById('projectNameInput').value.trim();
+  if (!name) return;
+
+  const editingProjectId = state.editingProjectId;
+  closeProjectModal();
+
+  if (editingProjectId) {
+    await updateProject(editingProjectId, name, state.selectedColor);
+  } else {
+    await createProject(name, state.selectedColor);
+  }
 }
 
 function buildColorPicker() {
@@ -544,9 +576,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 // ─── Wire up UI ───────────────────────────────────────────────────────────────
 
-document.getElementById('btnAddProject').addEventListener('click', openProjectModal);
+document.getElementById('btnAddProject').addEventListener('click', () => openProjectModal());
 
 document.getElementById('btnAddTask').addEventListener('click', openNewTaskEditor);
+
+document.getElementById('btnRenameProject').addEventListener('click', () => {
+  if (state.selectedProjectId) openProjectModal(state.selectedProjectId);
+});
 
 document.getElementById('btnToggleDone').addEventListener('click', () => {
   state.showDone = !state.showDone;
@@ -559,19 +595,11 @@ document.getElementById('btnDeleteProject').addEventListener('click', () => {
 
 document.getElementById('btnCancelProject').addEventListener('click', closeProjectModal);
 
-document.getElementById('btnCreateProject').addEventListener('click', async () => {
-  const name = document.getElementById('projectNameInput').value.trim();
-  if (!name) return;
-  closeProjectModal();
-  await createProject(name, state.selectedColor);
-});
+document.getElementById('btnCreateProject').addEventListener('click', saveProjectModal);
 
 document.getElementById('projectNameInput').addEventListener('keydown', async e => {
   if (e.key === 'Enter') {
-    const name = e.target.value.trim();
-    if (!name) return;
-    closeProjectModal();
-    await createProject(name, state.selectedColor);
+    await saveProjectModal();
   }
   if (e.key === 'Escape') closeProjectModal();
 });

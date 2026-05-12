@@ -58,6 +58,11 @@
             <span class="task-count" id="taskCount"></span>
           </div>
           <div class="pane-actions">
+            <button class="btn-icon" id="btnRenameProject" title="Rename project">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M11.5 2.5l2 2L6 12H4v-2L11.5 2.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+              </svg>
+            </button>
             <button class="btn-icon" id="btnToggleDone" title="Show / hide completed">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/>
@@ -89,7 +94,7 @@
   <!-- New project modal -->
   <div class="modal-backdrop" id="projectModal" style="display:none">
     <div class="modal">
-      <h2 class="modal-title">New project</h2>
+      <h2 class="modal-title" id="projectModalTitle">New project</h2>
       <input class="modal-input" id="projectNameInput" type="text" placeholder="Project name" maxlength="40" />
       <div class="color-picker" id="colorPicker"></div>
       <div class="modal-actions">
